@@ -5,5 +5,5 @@ const sessionController = require('./sessionController');
 
 router.post('/start-session', sessionController.startSession);
 router.post('/submit-otp', sessionController.submitOTP);
-
+router.post('/raiseclaim', sessionController.raiseClaim)
 module.exports = router;
