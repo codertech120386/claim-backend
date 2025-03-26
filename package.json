@@ -1,7 +1,6 @@
 {
   "name": "claim-pf-backend",
   "version": "1.0.0",
-  "description": "",
   "main": "BrowserSessionManager.js",
   "scripts": {
     "start": "node server.js",
@@ -18,5 +17,7 @@
   },
   "keywords": [],
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "devDependencies": {},
+  "description": ""
 }

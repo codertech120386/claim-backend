@@ -1,5 +1,3 @@
-const uuid = require('uuid');
-
 const { handleLogin, handleOTP } = require('./scraperUtils');
 
 const BrowserSessionManager = require('./BrowserSessionManager');
@@ -16,22 +14,19 @@ exports.startSession = async (req, res) => {
   }
 
   const { mobile } = req.body;
-  const internalUserId = uuid.v4();
   let isLoginSuccessful = false;
 
   try {
-    const { loginResponse } = await loginUser(internalUserId, mobile);
+    const { loginResponse } = await loginUser(mobile);
 
     if (loginResponse.success) {
       isLoginSuccessful = true;
       res.status(200).json({
         otpRequired: true,
-        internalUserId,
       });
     } else {
       res.status(loginResponse.status).json({
         message: loginResponse.message,
-        internalUserId: internalUserId,
       });
     }
   } catch (error) {
@@ -41,21 +36,20 @@ exports.startSession = async (req, res) => {
     res.status(500).json({
       message: 'An error occurred during the login process.',
       error: error.message,
-      internalUserId,
     });
   } finally {
     if (!isLoginSuccessful) {
-      await sessionManager.closeSession(internalUserId);
+      await sessionManager.closeSession(mobile);
       console.log('Session deleted due to unsuccessful login.');
     }
   }
 };
 
-const loginUser = async (internalUserId, mobile) => {
+const loginUser = async (mobile) => {
   console.log('Going to login user ');
   console.log('mobile : ' + mobile);
 
-  const loginResponse = await handleLogin(internalUserId, mobile);
+  const loginResponse = await handleLogin(mobile);
 
   return { loginResponse };
 };
@@ -64,22 +58,19 @@ exports.submitOTP = async (req, res) => {
   if (process.env.MODE === 'dummy') {
     return res.status(200).send({
       message: 'OTP submitted successfully.',
-      internalUserId: req.body.internalUserId,
     });
   }
 
-  const { internalUserId, otp } = req.body;
+  const { otp } = req.body;
   try {
     const mobile = '9833277189';
-    const result = await handleOTP(mobile, internalUserId, otp);
+    const result = await handleOTP(mobile, otp);
     return res.status(result?.status).send({
       message: result?.message,
-      internalUserId,
     });
   } catch (error) {
     return res.status(500).send({
       message: error.message,
-      internalUserId,
     });
   }
 };
